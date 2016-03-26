@@ -1,6 +1,2 @@
-hehe
-hehe
-hehe
-hehe
-haha
-hoho
+Actually for correct error handling with async, you have to drop exceptions. Exceptions in general don't work well with async code. You have to turn an error into a value and pass it forward to a continuation function. That's also what async libraries commonly do. They add try/catch blocks around code, and if it throws an exception a special "onError" Continuation function is called instead of the "normal" continuation function.
+In that sense, even "null" works better with async code compared to exceptions.

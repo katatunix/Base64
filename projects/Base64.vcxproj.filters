@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\Base64Codec.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -29,13 +26,13 @@
     <ClInclude Include="..\src\EncodingWriter.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\output.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Reader.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Writer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Buffer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

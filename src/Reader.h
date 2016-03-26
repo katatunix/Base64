@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include "Buffer.h"
 
 class Reader {
 private:
@@ -12,27 +13,18 @@ public:
 	}
 
 	~Reader() {
-		if (success()) fclose(f);
+		if (f) fclose(f);
 	}
 
-	bool success() {
-		return f != NULL;
-	}
+	Buffer read() {
+		if (!f) return Buffer();
 
-	const char* read() {
-		if (!success()) return NULL;
-
-		int s = size();
-		char* buffer = (char*)malloc(s);
+		fseek(f, 0, SEEK_END);
+		int size = ftell(f);
+		char* data = (char*)malloc(size);
 
 		rewind(f);
-		fread(buffer, 1, s, f);
-		return buffer;
-	}
-
-	int size() {
-		if (!success()) return 0;
-		fseek(f, 0, SEEK_END);
-		return ftell(f);
+		fread(data, 1, size, f);
+		return Buffer(data, size);
 	}
 };

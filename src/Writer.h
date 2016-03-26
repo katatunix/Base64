@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "Buffer.h"
 
 class Writer {
 private:
@@ -13,16 +14,16 @@ public:
 	}
 
 	~Writer() {
-		if (success()) fclose(f);
+		if (f) fclose(f);
 	}
 
 	bool success() {
 		return f != NULL;
 	}
 
-	void write(const char* data, int size) {
+	void write(Buffer& buffer) {
 		if (!success()) return;
-		fwrite(data, 1, size, f);
+		fwrite(buffer.ptr, 1, buffer.size, f);
 	}
 
 	void write(const char* str) {

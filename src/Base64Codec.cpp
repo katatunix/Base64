@@ -25,42 +25,45 @@ Base64Codec::~Base64Codec() {
 	free(decoding_table);
 }
 
-char* Base64Codec::encode(const unsigned char* data, int input_length, int* output_length) {
-	*output_length = 4 * ((input_length + 2) / 3);
+Buffer Base64Codec::encode(Buffer& input) {
+	Buffer output;
+	output.size = 4 * ((input.size + 2) / 3);
+	output.ptr = (char*)malloc(output.size + 1);
 
-	char* encoded_data = (char*)malloc(*output_length + 1);
-
-	for (int i = 0, j = 0; i < input_length;) {
-		unsigned int octet_a = i < input_length ? (unsigned char)data[i++] : 0;
-		unsigned int octet_b = i < input_length ? (unsigned char)data[i++] : 0;
-		unsigned int octet_c = i < input_length ? (unsigned char)data[i++] : 0;
+	char* data = input.ptr;
+	for (int i = 0, j = 0; i < input.size;) {
+		unsigned int octet_a = i < input.size ? (unsigned char)data[i++] : 0;
+		unsigned int octet_b = i < input.size ? (unsigned char)data[i++] : 0;
+		unsigned int octet_c = i < input.size ? (unsigned char)data[i++] : 0;
 
 		unsigned int triple = (octet_a << 0x10) + (octet_b << 0x08) + octet_c;
 
-		encoded_data[j++] = encoding_table[(triple >> 3 * 6) & 0x3F];
-		encoded_data[j++] = encoding_table[(triple >> 2 * 6) & 0x3F];
-		encoded_data[j++] = encoding_table[(triple >> 1 * 6) & 0x3F];
-		encoded_data[j++] = encoding_table[(triple >> 0 * 6) & 0x3F];
+		output.ptr[j++] = encoding_table[(triple >> 3 * 6) & 0x3F];
+		output.ptr[j++] = encoding_table[(triple >> 2 * 6) & 0x3F];
+		output.ptr[j++] = encoding_table[(triple >> 1 * 6) & 0x3F];
+		output.ptr[j++] = encoding_table[(triple >> 0 * 6) & 0x3F];
 	}
 
-	for (int i = 0; i < mod_table[input_length % 3]; i++) {
-		encoded_data[*output_length - 1 - i] = '=';
+	for (int i = 0; i < mod_table[input.size % 3]; i++) {
+		output.ptr[output.size - 1 - i] = '=';
 	}
 
-	encoded_data[*output_length] = 0;
-	return encoded_data;
+	output.ptr[output.size] = 0;
+	return output;
 }
 
-unsigned char* Base64Codec::decode(const char* data, int input_length, int* output_length) {
-	if (input_length % 4 != 0) return NULL;
+Buffer Base64Codec::decode(Buffer& input) {
+	Buffer output;
+	if (input.size % 4 != 0) return output;
 
-	*output_length = input_length / 4 * 3;
-	if (data[input_length - 1] == '=') (*output_length)--;
-	if (data[input_length - 2] == '=') (*output_length)--;
+	output.size = input.size / 4 * 3;
+	if (input.ptr[input.size - 1] == '=') --output.size;
+	if (input.ptr[input.size - 2] == '=') --output.size;
 
-	unsigned char* decoded_data = (unsigned char*)malloc(*output_length);
+	output.ptr = (char*)malloc(output.size);
 
-	for (int i = 0, j = 0; i < input_length;) {
+	char* data = input.ptr;
+	for (int i = 0, j = 0; i < input.size;) {
 		unsigned int sextet_a = data[i] == '=' ? 0 & i++ : decoding_table[data[i++]];
 		unsigned int sextet_b = data[i] == '=' ? 0 & i++ : decoding_table[data[i++]];
 		unsigned int sextet_c = data[i] == '=' ? 0 & i++ : decoding_table[data[i++]];
@@ -71,10 +74,10 @@ unsigned char* Base64Codec::decode(const char* data, int input_length, int* outp
 			+ (sextet_c << 1 * 6)
 			+ (sextet_d << 0 * 6);
 
-		if (j < *output_length) decoded_data[j++] = (triple >> 2 * 8) & 0xFF;
-		if (j < *output_length) decoded_data[j++] = (triple >> 1 * 8) & 0xFF;
-		if (j < *output_length) decoded_data[j++] = (triple >> 0 * 8) & 0xFF;
+		if (j < output.size) output.ptr[j++] = (triple >> 2 * 8) & 0xFF;
+		if (j < output.size) output.ptr[j++] = (triple >> 1 * 8) & 0xFF;
+		if (j < output.size) output.ptr[j++] = (triple >> 0 * 8) & 0xFF;
 	}
 
-	return decoded_data;
+	return output;
 }

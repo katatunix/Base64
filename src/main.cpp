@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "Buffer.h"
 #include "Reader.h"
 #include "Base64Codec.h"
 #include "Writer.h"
@@ -16,26 +17,24 @@ int main(int argc, char* argv[]) {
 	}
 
 	Reader reader(argv[1]);
-	if (!reader.success()) {
+	Buffer input = reader.read();
+	if (input.nothing()) {
 		printf("error: could not read from input file\n");
 		return 2;
 	}
-	unsigned char* inputData = (unsigned char*)reader.read();
-	const int inputLen = reader.size();
 
 	Base64Codec codec;
-	int outputLen = 0;
-	char* outputData = codec.encode(inputData, inputLen, &outputLen);
-	free(inputData);
+	Buffer output = codec.encode(input);
+	input.free();
 
 	Writer basic(argv[2]);
 	EndcodingWriter writer(basic);
-	int ret = 0;
-	if (!writer.write(argv[3], outputData)) {
-		printf("error: could not write to output file\n");
-		ret = 3;
-	}
-	free(outputData);
+	bool writeSuccess = writer.write(argv[3], output.ptr);
+	output.free();
 
-	return ret;
+	if (!writeSuccess) {
+		printf("error: could not write to output file\n");
+	}
+
+	return writeSuccess ? 0 : 3;
 }
