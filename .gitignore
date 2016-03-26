@@ -1,7 +1,8 @@
 /.svn/
-/projects/Debug/
-/projects/Release/
+Debug/
+Release/
 *.pdb
+*.ilk
 *.sdf
 *.opensdf
 *.suo
