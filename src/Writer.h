@@ -1,7 +1,8 @@
 #pragma once
 
 #include <stdio.h>
-#include <string.h>
+#include <string>
+#include <exception>
 #include "Buffer.h"
 
 using namespace std;
@@ -9,33 +10,34 @@ using namespace std;
 class Writer {
 private:
 	FILE* f;
+	exception ex;
 
 public:
 	Writer(const char* file) {
 		f = fopen(file, "w");
+		ex = exception( (string("Could not write to file ") + file).c_str() );
 	}
 
 	~Writer() {
-		if (f) fclose(f);
+		if (!failed()) fclose(f);
 	}
 
-	bool success() {
-		return f != NULL;
-	}
-
-	bool write(Buffer& buffer) {
-		if (!success()) return false;
+	void write(Buffer& buffer) {
+		if (failed()) throw ex;
 		fwrite(buffer.data, 1, buffer.len, f);
-		return true;
 	}
 
-	bool write(const string& str) {
-		return write(str.c_str());
+	void write(const string& str) {
+		write(str.c_str());
 	}
 
-	bool write(const char* str) {
-		if (!success()) return false;
+	void write(const char* str) {
+		if (failed()) throw ex;
 		fputs(str, f);
-		return true;
+	}
+
+private:
+	bool failed() {
+		return !f;
 	}
 };

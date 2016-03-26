@@ -1,5 +1,6 @@
-#include <stdio.h>
 #include <string>
+#include <exception>
+#include <iostream>
 
 #include "Buffer.h"
 #include "Reader.h"
@@ -10,7 +11,7 @@
 using namespace std;
 
 void usage() {
-	printf("Usage: Base64.exe input.bdae output.h g_variable\n");
+	cout << "Usage: Base64.exe input.bdae output.h g_variable\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -19,25 +20,23 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	Reader reader(argv[1]);
-	Buffer input = reader.read();
-	if (input.nothing()) {
-		printf("error: could not read from input file\n");
-		return 2;
+	try {
+		Reader reader(argv[1]);
+		Buffer input = reader.read();
+
+		Base64Codec codec;
+		string output = codec.encode(input);
+		input.close();
+
+		HDecorator decorator;
+		string header = decorator.decorate(string(argv[3]), output);
+
+		Writer writer(argv[2]);
+		writer.write(header);
+
+		return 0;
+	} catch (exception& ex) {
+		cout << string("Error: ") + ex.what() + "\n";
+		return 1;
 	}
-
-	Base64Codec codec;
-	string output = codec.encode(input);
-	input.free();
-
-	HDecorator decorator;
-	string header = decorator.decorate(string(argv[3]), output);
-
-	Writer writer(argv[2]);
-	bool writeSuccess = writer.write(header);
-	if (!writeSuccess) {
-		printf("error: could not write to output file\n");
-	}
-
-	return writeSuccess ? 0 : 3;
 }

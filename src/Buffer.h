@@ -11,9 +11,9 @@ public:
 	Buffer() : Buffer(NULL, 0) { }
 	Buffer(char* _data, int _len) : data(_data), len(_len) { }
 
-	void free() {
+	void close() {
 		if (data) {
-			::free(data);
+			free(data);
 			data = NULL;
 		}
 	}

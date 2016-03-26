@@ -2,29 +2,30 @@
 
 #include <stdlib.h>
 #include "Buffer.h"
+#include <exception>
+
+using namespace std;
 
 class Reader {
 private:
-	FILE* f;
+	const char* file;
 
 public:
-	Reader(const char* file) {
-		f = fopen(file, "r");
-	}
-
-	~Reader() {
-		if (f) fclose(f);
-	}
+	Reader(const char* _file) : file(_file) { }
 
 	Buffer read() {
-		if (!f) return Buffer();
+		FILE* f = fopen(file, "r");
+		if (!f) {
+			throw exception((string("Could not open file ") + file).c_str());
+		}
 
 		fseek(f, 0, SEEK_END);
-		int size = ftell(f);
-		char* data = (char*)malloc(size);
-
+		int len = ftell(f);
+		char* data = (char*)malloc(len);
 		rewind(f);
-		fread(data, 1, size, f);
-		return Buffer(data, size);
+		fread(data, 1, len, f);
+		fclose(f);
+
+		return Buffer(data, len);
 	}
 };
