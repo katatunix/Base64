@@ -22,7 +22,7 @@ public:
 		if (!failed()) fclose(f);
 	}
 
-	void write(vector<char>& buffer) {
+	void write(const vector<char>& buffer) {
 		if (failed()) throw ex;
 		fwrite(buffer.data(), 1, buffer.size(), f);
 	}
