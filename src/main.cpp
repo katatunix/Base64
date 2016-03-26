@@ -1,8 +1,8 @@
 #include <string>
+#include <vector>
 #include <exception>
 #include <iostream>
 
-#include "Buffer.h"
 #include "Reader.h"
 #include "Base64Codec.h"
 #include "HDecorator.h"
@@ -11,7 +11,7 @@
 using namespace std;
 
 void usage() {
-	cout << "Usage: Base64.exe input.bdae output.h g_variable\n";
+	cout << "Usage: Base64.exe input.bdae output.h variable_name\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -22,11 +22,10 @@ int main(int argc, char* argv[]) {
 
 	try {
 		Reader reader(argv[1]);
-		Buffer input = reader.read();
+		vector<char> input = reader.read();
 
 		Base64Codec codec;
 		string output = codec.encode(input);
-		input.close();
 
 		HDecorator decorator;
 		string header = decorator.decorate(string(argv[3]), output);
@@ -36,7 +35,7 @@ int main(int argc, char* argv[]) {
 
 		return 0;
 	} catch (exception& ex) {
-		cout << string("Error: ") + ex.what() + "\n";
+		cout << "Error: " << ex.what() << "\n";
 		return 1;
 	}
 }

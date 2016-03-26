@@ -2,6 +2,8 @@
 #include "Reader.h"
 #include "Writer.h"
 #include <string>
+#include <vector>
+
 using namespace std;
 
 TEST_CASE("Reader and Writer", "[reader_writer]")
@@ -14,8 +16,8 @@ TEST_CASE("Reader and Writer", "[reader_writer]")
 			writer.write("nghia bui van");
 		}
 		Reader reader(file);
-		Buffer buffer = reader.read();
-		REQUIRE(string(buffer.data, buffer.len) == "nghia bui van");
+		vector<char> buffer = reader.read();
+		REQUIRE(string(buffer.data(), buffer.size()) == "nghia bui van");
 	}
 	SECTION("Reading an un-exsited file should throw exception")
 	{

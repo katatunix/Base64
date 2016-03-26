@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include <string>
-#include "Buffer.h"
+#include <vector>
 
 using namespace std;
 
@@ -24,14 +24,16 @@ public:
 		free(decoding_table);
 	}
 
-	string encode(Buffer& input) {
-		int output_len = 4 * ((input.len + 2) / 3);
-		char* output_data = (char*)malloc(output_len + 1);
+	string encode(const vector<char>& input) {
+		int input_len = input.size();
+		int output_len = 4 * ((input_len + 2) / 3);
+		char* output_data = (char*)malloc(output_len);
 
-		for (int i = 0, j = 0; i < input.len;) {
-			unsigned int octet_a = i < input.len ? (unsigned char)input.data[i++] : 0;
-			unsigned int octet_b = i < input.len ? (unsigned char)input.data[i++] : 0;
-			unsigned int octet_c = i < input.len ? (unsigned char)input.data[i++] : 0;
+		const char* input_data = input.data();
+		for (int i = 0, j = 0; i < input_len;) {
+			unsigned int octet_a = i < input_len ? (unsigned char)input_data[i++] : 0;
+			unsigned int octet_b = i < input_len ? (unsigned char)input_data[i++] : 0;
+			unsigned int octet_c = i < input_len ? (unsigned char)input_data[i++] : 0;
 
 			unsigned int triple = (octet_a << 0x10) + (octet_b << 0x08) + octet_c;
 
@@ -40,27 +42,28 @@ public:
 			output_data[j++] = encoding_table[(triple >> 1 * 6) & 0x3F];
 			output_data[j++] = encoding_table[(triple >> 0 * 6) & 0x3F];
 		}
-		for (int i = 0; i < mod_table[input.len % 3]; i++) {
+		for (int i = 0; i < mod_table[input_len % 3]; i++) {
 			output_data[output_len - 1 - i] = '=';
 		}
 
-		output_data[output_len] = 0;
-		string ret(output_data);
+		string ret(output_data, output_len);
 		free(output_data);
 		return ret;
 	}
 
-	Buffer decode(string& input) {
-		Buffer output;
+	vector<char> decode(string& input) {
 		int input_len = input.length();
-		if (input_len % 4 != 0) return output;
+		if (input_len % 4 != 0) throw exception("Invalid Base64 string");
 
-		output.len = input_len / 4 * 3;
 		const char* input_data = input.c_str();
-		if (input_data[input_len - 1] == '=') --output.len;
-		if (input_data[input_len - 2] == '=') --output.len;
 
-		output.data = (char*)malloc(output.len);
+		int output_len = input_len / 4 * 3;
+		if (input_data[input_len - 1] == '=') --output_len;
+		if (input_data[input_len - 2] == '=') --output_len;
+
+		vector<char> output(output_len);
+		char* output_data = output.data();
+
 		for (int i = 0, j = 0; i < input_len;) {
 			unsigned int sextet_a = input_data[i] == '=' ? 0 & i++ : decoding_table[input_data[i++]];
 			unsigned int sextet_b = input_data[i] == '=' ? 0 & i++ : decoding_table[input_data[i++]];
@@ -72,9 +75,9 @@ public:
 				+ (sextet_c << 1 * 6)
 				+ (sextet_d << 0 * 6);
 
-			if (j < output.len) output.data[j++] = (triple >> 2 * 8) & 0xFF;
-			if (j < output.len) output.data[j++] = (triple >> 1 * 8) & 0xFF;
-			if (j < output.len) output.data[j++] = (triple >> 0 * 8) & 0xFF;
+			if (j < output_len) output_data[j++] = (triple >> 2 * 8) & 0xFF;
+			if (j < output_len) output_data[j++] = (triple >> 1 * 8) & 0xFF;
+			if (j < output_len) output_data[j++] = (triple >> 0 * 8) & 0xFF;
 		}
 
 		return output;

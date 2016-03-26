@@ -15,7 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\Base64Codec.h" />
-    <ClInclude Include="..\..\src\Buffer.h" />
     <ClInclude Include="..\..\src\HDecorator.h" />
     <ClInclude Include="..\..\src\Reader.h" />
     <ClInclude Include="..\..\src\Writer.h" />

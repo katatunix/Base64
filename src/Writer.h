@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string>
 #include <exception>
-#include "Buffer.h"
+#include <vector>
 
 using namespace std;
 
@@ -15,16 +15,16 @@ private:
 public:
 	Writer(const char* file) {
 		f = fopen(file, "w");
-		ex = exception( (string("Could not write to file ") + file).c_str() );
+		ex = exception( (string("Could not write to file \"") + file + "\"").c_str() );
 	}
 
 	~Writer() {
 		if (!failed()) fclose(f);
 	}
 
-	void write(Buffer& buffer) {
+	void write(vector<char>& buffer) {
 		if (failed()) throw ex;
-		fwrite(buffer.data, 1, buffer.len, f);
+		fwrite(buffer.data(), 1, buffer.size(), f);
 	}
 
 	void write(const string& str) {
