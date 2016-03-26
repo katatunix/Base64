@@ -4,6 +4,8 @@
 #include <string.h>
 #include "Buffer.h"
 
+using namespace std;
+
 class Writer {
 private:
 	FILE* f;
@@ -21,13 +23,19 @@ public:
 		return f != NULL;
 	}
 
-	void write(Buffer& buffer) {
-		if (!success()) return;
-		fwrite(buffer.ptr, 1, buffer.size, f);
+	bool write(Buffer& buffer) {
+		if (!success()) return false;
+		fwrite(buffer.data, 1, buffer.len, f);
+		return true;
 	}
 
-	void write(const char* str) {
-		if (!success()) return;
+	bool write(const string& str) {
+		return write(str.c_str());
+	}
+
+	bool write(const char* str) {
+		if (!success()) return false;
 		fputs(str, f);
+		return true;
 	}
 };

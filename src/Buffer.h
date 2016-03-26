@@ -5,20 +5,20 @@
 
 class Buffer {
 public:
-	char* ptr;
-	int size;
+	char* data;
+	int len;
 
 	Buffer() : Buffer(NULL, 0) { }
-	Buffer(char* _ptr, int _size) : ptr(_ptr), size(_size) { }
+	Buffer(char* _data, int _len) : data(_data), len(_len) { }
 
 	void free() {
-		if (ptr) {
-			::free(ptr);
-			ptr = NULL;
+		if (data) {
+			::free(data);
+			data = NULL;
 		}
 	}
 
 	bool nothing() {
-		return !ptr || !size;
+		return !data;
 	}
 };

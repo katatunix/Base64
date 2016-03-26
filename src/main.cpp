@@ -1,10 +1,13 @@
 #include <stdio.h>
+#include <string>
 
 #include "Buffer.h"
 #include "Reader.h"
 #include "Base64Codec.h"
+#include "HDecorator.h"
 #include "Writer.h"
-#include "EncodingWriter.h"
+
+using namespace std;
 
 void usage() {
 	printf("Usage: Base64.exe input.bdae output.h g_variable\n");
@@ -24,14 +27,14 @@ int main(int argc, char* argv[]) {
 	}
 
 	Base64Codec codec;
-	Buffer output = codec.encode(input);
+	string output = codec.encode(input);
 	input.free();
 
-	Writer basic(argv[2]);
-	EndcodingWriter writer(basic);
-	bool writeSuccess = writer.write(argv[3], output.ptr);
-	output.free();
+	HDecorator decorator;
+	string header = decorator.decorate(string(argv[3]), output);
 
+	Writer writer(argv[2]);
+	bool writeSuccess = writer.write(header);
 	if (!writeSuccess) {
 		printf("error: could not write to output file\n");
 	}
