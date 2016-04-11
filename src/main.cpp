@@ -11,11 +11,11 @@
 using namespace std;
 
 void usage() {
-	cout << "Usage: Base64.exe input.bdae output.h variable_name\n";
+	cout << "Usage: Base64.exe input.bdae output.h func_name max_length_of_each_part\n";
 }
 
 int main(int argc, char* argv[]) {
-	if (argc != 4) {
+	if (argc != 5) {
 		usage();
 		return 1;
 	}
@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 		string output = codec.encode(input);
 
 		HDecorator decorator;
-		string header = decorator.decorate(string(argv[3]), output);
+		string header = decorator.decorate(string(argv[3]), output, atoi(argv[4]));
 
 		Writer writer(argv[2]);
 		writer.write(header);
